@@ -4,9 +4,9 @@
   "description": "Blog-list",
   "main": "index.js",
   "scripts": {
-    "test": "jest --verbose",
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "test": "cross-env NODE_ENV=test jest --verbose --runInBand",
+    "start": "cross-env NODE_ENV=production node index.js",
+    "dev": "cross-env NODE_ENV=development nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -23,17 +23,18 @@
   "homepage": "https://github.com/nanyangcn/FullStackOpen2020ExercisesPart4#readme",
   "dependencies": {
     "cors": "^2.8.5",
+    "cross-env": "^7.0.2",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
     "lodash": "^4.17.20",
-    "mongoose": "^5.10.6"
+    "mongoose": "^5.10.6",
+    "morgan": "^1.10.0"
   },
   "devDependencies": {
     "eslint": "^7.9.0",
     "jest": "^26.4.2",
-    "nodemon": "^2.0.4"
-  },
-  "jest": {
-    "testEnvironment": "node"
+    "nodemon": "^2.0.4",
+    "supertest": "^4.0.2"
   }
 }
