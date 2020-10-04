@@ -17,9 +17,6 @@ blogsRouter.post('/', async (request, response) => {
   const decodedToken = jwt.verify(request.token, process.env.SECRET)
 
   const body = request.body
-  if (body.user.toString() !== decodedToken.id.toString()) {
-    return response.status(401).json({ error: 'no permission: cannot creat blog' })
-  }
   const user = await User.findById(decodedToken.id)
   const blog = new Blog({
     title: body.title,
@@ -45,11 +42,15 @@ blogsRouter.delete('/:id', async (request, response) => {
   }
 
   if (blog.user.toString() !== decodedToken.id.toString()) {
-    return response.status(401).json({ error: 'no permission: cannot delete blog' })
+    return response
+      .status(401)
+      .json({ error: 'no permission: cannot delete blog' })
   }
 
   const user = await User.findById(blog.user)
-  user.blogs = user.blogs.filter((blog) => JSON.stringify(blog) !== JSON.stringify(id))
+  user.blogs = user.blogs.filter(
+    (blog) => JSON.stringify(blog) !== JSON.stringify(id)
+  )
 
   await user.save()
   await Blog.findByIdAndRemove(id)
@@ -59,16 +60,24 @@ blogsRouter.delete('/:id', async (request, response) => {
 // FIXME: 1. update user blog list
 //        2. token authorization
 blogsRouter.put('/:id', async (request, response) => {
+  jwt.verify(request.token, process.env.SECRET)
+
   const id = request.params.id
   const body = request.body
-  const blog = {
+
+  const blog = await Blog.findById(id)
+  if (!blog) {
+    return response.status(404).json({ error: 'blog not found' })
+  }
+
+  const blogObject = {
     title: body.title,
     author: body.author,
     url: body.url,
     likes: typeof body.likes === 'number' ? body.likes : 0,
   }
 
-  const updateBlog = await Blog.findByIdAndUpdate(id, blog, {
+  const updateBlog = await Blog.findByIdAndUpdate(id, blogObject, {
     new: true,
     runValidators: true,
     context: 'query',
