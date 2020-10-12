@@ -272,34 +272,59 @@ describe('delete blog', () => {
 
 describe('put blog', () => {
   test('put blog status type', async () => {
+    const loginUser = {
+      username: initialUsers[0].username,
+      password: initialUsers[0].password,
+    }
+    const loginResponse = await api.post('/api/login').send(loginUser)
+
     const blogsBefore = await listHelper.BlogsInDb()
     const id = blogsBefore[0].id
     const users = await listHelper.UsersInDb()
     const updateBlog = { ...listHelper.newBlog, user: users[0].id }
     await api
       .put(`/api/blogs/${id}`)
+      .set('Authorization', `Bearer ${loginResponse.body.token}`)
       .send(updateBlog)
       .expect(200)
       .expect('Content-Type', /application\/json/)
   })
 
   test('put blog length', async () => {
+    const loginUser = {
+      username: initialUsers[0].username,
+      password: initialUsers[0].password,
+    }
+    const loginResponse = await api.post('/api/login').send(loginUser)
+
     const blogsBefore = await listHelper.BlogsInDb()
     const id = blogsBefore[0].id
     const users = await listHelper.UsersInDb()
     const updateBlog = { ...listHelper.newBlog, user: users[0].id }
-    await api.put(`/api/blogs/${id}`).send(updateBlog)
+    await api
+      .put(`/api/blogs/${id}`)
+      .set('Authorization', `Bearer ${loginResponse.body.token}`)
+      .send(updateBlog)
     const blogsAfter = await listHelper.BlogsInDb()
     expect(blogsAfter).toHaveLength(blogsBefore.length)
   })
 
   test('put blog body', async () => {
+    const loginUser = {
+      username: initialUsers[0].username,
+      password: initialUsers[0].password,
+    }
+    const loginResponse = await api.post('/api/login').send(loginUser)
+
     const blogsBefore = await listHelper.BlogsInDb()
     const id = blogsBefore[0].id
     const users = await listHelper.UsersInDb()
     const updateBlog = { ...listHelper.newBlog, user: users[0].id }
     delete updateBlog.id
-    await api.put(`/api/blogs/${id}`).send(updateBlog)
+    await api
+      .put(`/api/blogs/${id}`)
+      .set('Authorization', `Bearer ${loginResponse.body.token}`)
+      .send(updateBlog)
     const blogsAfter = await listHelper.BlogsInDb()
     blogsAfter.forEach((blog) => {
       delete blog.id
@@ -308,32 +333,61 @@ describe('put blog', () => {
   })
 
   test('put blog no like', async () => {
+    const loginUser = {
+      username: initialUsers[0].username,
+      password: initialUsers[0].password,
+    }
+    const loginResponse = await api.post('/api/login').send(loginUser)
+
     const blogsBefore = await listHelper.BlogsInDb()
     const id = blogsBefore[0].id
     const users = await listHelper.UsersInDb()
     const updateBlog = { ...listHelper.newBlogNoLikes, user: users[0].id }
-    await api.put(`/api/blogs/${id}`).send(updateBlog)
+    await api
+      .put(`/api/blogs/${id}`)
+      .set('Authorization', `Bearer ${loginResponse.body.token}`)
+      .send(updateBlog)
     const blogsAfter = await listHelper.BlogsInDb()
     blogsAfter.forEach((blog) => expect(blog.likes).toBeDefined())
   })
 
   test('put blog no title', async () => {
+    const loginUser = {
+      username: initialUsers[0].username,
+      password: initialUsers[0].password,
+    }
+    const loginResponse = await api.post('/api/login').send(loginUser)
+
     const blogsBefore = await listHelper.BlogsInDb()
     const id = blogsBefore[0].id
     const users = await listHelper.UsersInDb()
     const updateBlog = { ...listHelper.newBlogNoTitle, user: users[0].id }
-    const response = await api.put(`/api/blogs/${id}`).send(updateBlog).expect(400)
+    const response = await api
+      .put(`/api/blogs/${id}`)
+      .set('Authorization', `Bearer ${loginResponse.body.token}`)
+      .send(updateBlog)
+      .expect(400)
     expect(response.error.text).toBe(
       '{"error":"Validation failed: title: Path `title` is required."}'
     )
   })
 
   test('put blog no url', async () => {
+    const loginUser = {
+      username: initialUsers[0].username,
+      password: initialUsers[0].password,
+    }
+    const loginResponse = await api.post('/api/login').send(loginUser)
+
     const blogsBefore = await listHelper.BlogsInDb()
     const id = blogsBefore[0].id
     const users = await listHelper.UsersInDb()
     const updateBlog = { ...listHelper.newBlogNoUrl, user: users[0].id }
-    const response = await api.put(`/api/blogs/${id}`).send(updateBlog).expect(400)
+    const response = await api
+      .put(`/api/blogs/${id}`)
+      .set('Authorization', `Bearer ${loginResponse.body.token}`)
+      .send(updateBlog)
+      .expect(400)
     expect(response.error.text).toBe(
       '{"error":"Validation failed: url: Path `url` is required."}'
     )
