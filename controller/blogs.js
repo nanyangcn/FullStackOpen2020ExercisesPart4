@@ -13,6 +13,23 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs)
 })
 
+blogsRouter.post('/:id/comments', async (request, response) => {
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  await User.findById(decodedToken.id)
+  const id = request.params.id
+  const blog = await Blog.findById(id)
+  if (!blog) {
+    return response.status(404).send({ error: 'blog not found' })
+  }
+
+  blog.comments = [...blog.comments, request.body.comment]
+  const updateBlog = await Blog.findByIdAndUpdate(id, blog, {
+    new: true,
+    context: 'query',
+  })
+  response.json(updateBlog)
+})
+
 blogsRouter.post('/', async (request, response) => {
   const decodedToken = jwt.verify(request.token, process.env.SECRET)
 
@@ -71,9 +88,6 @@ blogsRouter.put('/:id', async (request, response) => {
   }
 
   const blogObject = {
-    title: body.title,
-    author: body.author,
-    url: body.url,
     likes: typeof body.likes === 'number' ? body.likes : 0,
   }
 
